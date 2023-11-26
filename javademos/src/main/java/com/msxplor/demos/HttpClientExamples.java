@@ -35,7 +35,42 @@ public class HttpClientExamples {
                         .connectTimeout(Duration.ofSeconds(10))
                         .build();
 
+
+         public static void usingHttpClientWithProxyIntercept() {
+                // logging complete request/response using proxy
+                // 1. Dowload & install https://mitmproxy.org/ or Any other proxy like fiddler
+                // 2. Start the proxy server at port 8080 on localhost
+                // 3. Send reqquest to any service
+                // 4. you should able to see complete request/response on mitmproxy UI
+                HttpClient httpClientViaProxy = HttpClient.newBuilder()
+                                .connectTimeout(Duration.ofSeconds(20))
+                                .proxy(ProxySelector.of(new InetSocketAddress("localhost", 8080)))
+                                .build();
+                  HttpRequest request = HttpRequest.newBuilder()
+                                .GET()
+                                .uri(URI.create("https://postman-echo.com/get"))
+                                .setHeader("User-Agent", "Java 11 HttpClient Bot")
+                                .build();
+                 try {
+                        HttpResponse<String> response = httpClientViaProxy.send(request, HttpResponse.BodyHandlers.ofString());
+                        HttpHeaders headers = response.headers();
+                        headers.map().forEach((k, v) -> System.out.println(k + ":" + v));
+
+                        System.out.println(response.statusCode());
+                        System.out.println(response.body());
+
+                } catch (IOException | InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                }
+
+                
+        }
         public static void usingHttpClientSynchronous() throws IOException, InterruptedException {
+                // https://medium.com/@kir.maxim/lesson-i-have-learned-from-using-jdk11-http-client-2cf990daba03
+                // enable logging
+                System.setProperty("jdk.httpclient.HttpClient.log", "all");
+
                 HttpClient httpClient = HttpClient.newBuilder()
                                 .version(HttpClient.Version.HTTP_1_1)
                                 .connectTimeout(Duration.ofSeconds(10))
